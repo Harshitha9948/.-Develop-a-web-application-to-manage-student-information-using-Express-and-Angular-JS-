@@ -1,0 +1,96 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Student Management</title> 
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script> 
+    <style>         
+    body  
+     { 
+            font-family: Arial, sans-serif;             
+            margin: 20px; 
+        } 
+        table  
+      { 
+            width: 100%;             
+            border-collapse: 
+            collapse; 
+        } 
+        th, td 
+     { 
+            border: 1px solid #ddd;             
+            padding: 8px;             
+            text-align: left; 
+        }         th  
+     { 
+            background-color: #f2f2f2; 
+        } 
+    </style> 
+</head> 
+<body ng-app="studentApp" ng-controller="StudentController"> 
+ 
+    <h2>Student Management System</h2> 
+ 
+    <h3>Add Student</h3> 
+    <form ng-submit="addStudent()"> 
+        <label>Name:</label> 
+        <input type="text" ng-model="newStudent.name" required /> 
+        <label>Course:</label> 
+        <input type="text" ng-model="newStudent.course" required /> 
+        <button type="submit">Add</button> 
+    </form> 
+ 
+    <h3>Student List</h3> 
+    <table> 
+        <tr> 
+            <th>ID</th> 
+            <th>Name</th> 
+            <th>Course</th> 
+            <th>Actions</th> 
+        </tr> 
+        <tr ng-repeat="student in students"> 
+            <td>{{ student.id }}</td> 
+            <td>{{ student.name }}</td> 
+            <td>{{ student.course }}</td> 
+            <td><button ng-click="deleteStudent(student.id)">Delete</button></td> 
+        </tr> 
+    </table> 
+ 
+    <script>         
+    var app = angular.module('studentApp', []);         
+    app.controller('StudentController', function($scope, $http) {             
+        const apiUrl = 'http://localhost:3000/students'; 
+ 
+            // Load students from server            
+            function loadStudents() { 
+                $http.get(apiUrl).then(response => { 
+                    $scope.students = response.data; 
+                }).catch(error => {                     
+                    console.error("Error fetching students:", error); 
+                }); 
+            } 
+ 
+            loadStudents(); // Load students initially 
+ 
+            // Add new student 
+            $scope.addStudent = function() { 
+                $http.post(apiUrl, $scope.newStudent).then(response => {                     
+                    alert(response.data.message);                     
+                    loadStudents(); // Refresh the list 
+                    $scope.newStudent = {}; // Clear form 
+                }); 
+            }; 
+ 
+            // Delete student 
+            $scope.deleteStudent = function(id) { 
+                $http.delete(apiUrl + '/' + id).then(response => {                     
+                    alert(response.data.message);                     
+                    loadStudents(); // Refresh the list 
+                }); 
+            }; 
+        }); 
+    </script> 
+ 
+</body> 
+</html> 
